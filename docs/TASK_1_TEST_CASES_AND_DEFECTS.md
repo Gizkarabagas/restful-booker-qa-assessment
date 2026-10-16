@@ -39,53 +39,154 @@ Below is a comprehensive suite of test cases designed in **Jira Xray BDD / Cucum
 
 ---
 
-### 2.1 Gherkin Feature File Syntax (`booking.feature`)
+---
 
-File ini dapat langsung diimport ke **Jira Xray (Cucumber Test Type)** atau dieksekusi langsung oleh test runner:
+### 2.1 BDD / Gherkin Test Case Specifications (`booking.feature`)
+
+Format skenario Behavior Driven Development (BDD) menggunakan syntax Gherkin (`Given`, `When`, `Then`, `And`, `Scenario Outline`, `Examples`). Format ini siap pakai untuk diimport langsung ke **Jira Xray (Cucumber Test Type)**:
 
 ```gherkin
-@booking @regression
-Feature: Room Reservation Workflow
-  As a guest of Shady Meadows B&B
+@booking @hotel-management @regression
+Feature: Room Reservation Workflow - Shady Meadows B&B
+  As a prospective guest of Shady Meadows B&B
   I want to select and book a hotel room online
-  So that I have a confirmed reservation for my stay
+  So that I have a confirmed reservation for my upcoming stay
 
-  @XRAY-101 @smoke @e2e
-  Scenario: [XRAY-101] Successfully book a room with valid guest details
-    Given the guest navigates to the reservation page for an available room
-    When the guest opens the reservation modal
-    And the guest enters valid guest details
-    And the guest submits the reservation form
-    Then the system displays the booking confirmation with the reserved dates
+  # =========================================================================
+  # 1. POSITIVE SCENARIOS (HAPPY PATH & PERMITTED BOUNDARIES)
+  # =========================================================================
 
-  @XRAY-102 @negative @validation
-  Scenario: [XRAY-102] Display validation errors when submitting booking form with missing mandatory fields
-    Given the guest navigates to the reservation page for an available room
-    When the guest opens the reservation modal
-    And the guest leaves all guest details fields empty
-    And the guest submits the reservation form
-    Then the system displays a validation error banner containing mandatory field requirements
+  @TC-BOOK-001 @XRAY-101 @smoke @positive @e2e
+  Scenario: User successfully books a room with valid guest information
+    Given User is on the room reservation page with available stay dates
+    When User clicks the "Reserve Now" button on the price summary card
+    And User enters valid guest information:
+      | firstname | lastname | email                         | phone         |
+      | Alexander | QAUser   | alexander.qa@automation.io    | 0812345678901 |
+    And User clicks the "Reserve Now" button inside the modal
+    Then The reservation should be created successfully with HTTP 201
+    And User should see the "Booking Confirmed" card displaying the reserved dates
+    And The "Return home" button should be visible and clickable
 
-  @XRAY-103 @boundary @negative
-  Scenario Outline: [XRAY-103] Validation on guest names below minimum boundary (< 3 characters)
-    Given the guest navigates to the reservation page for an available room
-    When the guest opens the reservation modal
-    And the guest inputs Firstname "<firstname>" and Lastname "<lastname>"
-    And the guest submits the reservation form
-    Then the system displays a validation error "size must be between 3 and 18"
+  @TC-BOOK-004 @positive @boundary
+  Scenario: User successfully books a room with guest name at maximum boundary (18 characters)
+    Given User is on the room reservation page with available stay dates
+    When User clicks the "Reserve Now" button on the price summary card
+    And User enters Firstname "MaximilianusValer" and Lastname "Constantinopolit"
+    And User enters valid email "test@example.com" and phone "0812345678901"
+    And User clicks the "Reserve Now" button inside the modal
+    Then The reservation should be created successfully without name validation error
+
+  @TC-BOOK-007 @positive @boundary
+  Scenario Outline: User successfully books a room with phone number at boundary lengths (11 and 21 digits)
+    Given User is on the room reservation page with available stay dates
+    When User clicks the "Reserve Now" button on the price summary card
+    And User enters valid guest name and email
+    And User enters phone number "<phone_number>" with "<digit_count>" digits
+    And User clicks the "Reserve Now" button inside the modal
+    Then The reservation should be created successfully with HTTP 201
 
     Examples:
-      | firstname | lastname |
-      | Al        | Do       |
-      | J         | K        |
+      | phone_number          | digit_count | description        |
+      | 08123456789           | 11          | Minimum boundary   |
+      | 081234567890123456789 | 21          | Maximum boundary   |
 
-  @XRAY-108 @negative @conflict
-  Scenario: [XRAY-108] Reject booking on date conflict with an existing reservation
-    Given a room has an existing confirmed reservation on "2026-11-10" to "2026-11-12"
-    When another guest attempts to book the same room on "2026-11-10" to "2026-11-12"
-    And the guest submits valid guest information
-    Then the system rejects the booking with an HTTP 409 conflict
-    And the UI displays an error alert indicating the room is unavailable
+  @TC-BOOK-009 @positive @boundary
+  Scenario: User successfully books a room for minimum stay duration (1 night)
+    Given User is on the booking calendar for an available room
+    When User selects check-in date "2026-11-20" and check-out date "2026-11-21"
+    Then The price breakdown should calculate exactly "1 night x rate" plus cleaning and service fees
+    When User submits valid guest details in the reservation modal
+    Then The booking should be confirmed for a 1-night stay
+
+  @TC-BOOK-012 @positive @edge_case
+  Scenario: User books a room with international characters and apostrophes in guest name
+    Given User is on the room reservation page with available stay dates
+    When User clicks the "Reserve Now" button on the price summary card
+    And User enters Firstname "René" and Lastname "O'Connor"
+    And User enters valid email and phone number
+    And User clicks the "Reserve Now" button inside the modal
+    Then The reservation should be processed without character corruption or system errors
+
+  # =========================================================================
+  # 2. NEGATIVE SCENARIOS (VALIDATIONS & CONSTRAINTS)
+  # =========================================================================
+
+  @TC-BOOK-002 @XRAY-102 @negative @validation
+  Scenario: System displays validation errors when submitting an empty booking form
+    Given User has opened the booking reservation modal
+    When User leaves all input fields empty:
+      | firstname | lastname | email | phone |
+      |           |          |       |       |
+    And User clicks the "Reserve Now" button inside the modal
+    Then The form submission should be rejected with HTTP 400 Bad Request
+    And User should see a validation alert banner containing mandatory field notices:
+      | error_message                 |
+      | Firstname should not be blank |
+      | Lastname should not be blank  |
+      | must not be empty             |
+      | size must be between 11 and 21|
+
+  @TC-BOOK-003 @negative @boundary
+  Scenario Outline: System rejects guest names below minimum boundary limit (< 3 characters)
+    Given User has opened the booking reservation modal
+    When User enters Firstname "<firstname>" and Lastname "<lastname>"
+    And User enters valid email "test@example.com" and phone "0812345678901"
+    And User clicks the "Reserve Now" button inside the modal
+    Then The form submission should be rejected
+    And User should see validation error "size must be between 3 and 18"
+
+    Examples:
+      | firstname | lastname | length_description |
+      | Jo        | Do       | 2 characters each  |
+      | A         | B        | 1 character each   |
+
+  @TC-BOOK-005 @negative @validation
+  Scenario: System rejects booking submission with invalid email format
+    Given User has opened the booking reservation modal
+    When User enters valid guest name and phone number
+    And User enters invalid email "invalidemailaddress" without "@" and domain
+    And User clicks the "Reserve Now" button inside the modal
+    Then The form submission should be rejected
+    And User should see validation error regarding invalid email format
+
+  @TC-BOOK-006 @negative @boundary
+  Scenario: System rejects booking submission with phone number below minimum boundary (10 digits)
+    Given User has opened the booking reservation modal
+    When User enters valid guest name and email
+    And User enters phone number "0123456789" with 10 digits
+    And User clicks the "Reserve Now" button inside the modal
+    Then The form submission should be rejected
+    And User should see validation error "size must be between 11 and 21"
+
+  # =========================================================================
+  # 3. BOUNDARY & EDGE CASE SCENARIOS (CONFLICTS & SYSTEM LIMITS)
+  # =========================================================================
+
+  @TC-BOOK-008 @negative @conflict
+  Scenario: System prevents double-booking when selected dates overlap with an existing confirmed reservation
+    Given Room "101" already has a confirmed booking for dates "2026-11-10" to "2026-11-12"
+    When Another guest attempts to book Room "101" for the overlapping dates "2026-11-10" to "2026-11-12"
+    And The guest submits valid guest information
+    Then The backend API should reject the booking with HTTP 409 Conflict
+    And The UI should display a graceful alert indicating the dates are unavailable
+    And The application must NOT crash to an unhandled error boundary screen
+
+  @TC-BOOK-010 @negative @edge_case
+  Scenario: System blocks reservation when check-out date is set earlier than check-in date
+    Given User is on the booking calendar for an available room
+    When User sets check-out date "2026-11-01" earlier than check-in date "2026-11-05"
+    Then The calendar should prevent the selection OR form submission should be blocked
+    And User should see error message "Check-out date must be after check-in date"
+
+  @TC-BOOK-011 @negative @edge_case
+  Scenario: System validates phone number format to reject alphabetical characters
+    Given User has opened the booking reservation modal
+    When User enters valid guest name and email
+    And User enters alphabetical characters "abcdefghijk12" in the phone input
+    And User clicks the "Reserve Now" button inside the modal
+    Then The form submission should be rejected
+    And User should see validation error "Phone number must contain only valid numeric digits"
 ```
 
 ---
