@@ -165,8 +165,10 @@ The modal remains open and renders a prominent warning alert:
 The API call `POST /api/booking` responds with `HTTP 409 Conflict`. The UI immediately crashes to a full-page error boundary screen: **"This page couldn't load. Reload to try again, or go back."** All user input is lost.
 
 #### Evidence:
-* **Screenshot:** *(Refer to `docs/evidence/screenshot_double_booking.png` in project repository)*
 * **API Response:** `HTTP/1.1 409 Conflict` $\rightarrow$ `{"error":"Failed to create booking"}`
+* **Screenshot Evidence:**
+
+![BUG-001: Frontend React Crash on HTTP 409 Conflict](evidence/screenshot_double_booking.png)
 
 ---
 
@@ -229,7 +231,9 @@ When a user clicks "Reserve Now" in the booking modal with empty inputs, the bac
 The frontend modal directly dumps this raw array into a red alert box without associating each error with its corresponding input field. This leads to duplicate error lines (`"must not be empty"` is displayed twice) and cryptic messages (`"size must be between 3 and 18"` does not state which field it pertains to).
 
 #### Evidence:
-* **Screenshot:** *(Refer to `docs/evidence/screenshot_validation_errors.png` in project repository)*
+* **Screenshot Evidence:**
+
+![BUG-003: Raw Backend Error Banner with Duplicates](evidence/screenshot_validation_errors.png)
 
 ---
 
@@ -366,3 +370,7 @@ export default function () {
   * `[XRAY-101] Successfully book a room with valid guest details` (Happy Path E2E)
   * `[XRAY-102] Display validation errors when submitting booking form with missing mandatory fields` (Validation)
 * **Reporting:** Interactive HTML report + standard JUnit XML report at `results/results.xml` for Jira Xray import.
+
+### 5.1 Automation Execution Proof:
+![Happy Path Booking Confirmation Screen](evidence/screenshot_success_booking.png)
+

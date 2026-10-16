@@ -231,11 +231,13 @@ The API call `POST /api/booking` responds with `HTTP 409 Conflict`. The UI immed
 All user input is lost.
 
 #### Evidence
-* **Screenshot:** [screenshot_double_booking.png](file:///d:/Teknikal%20test%20IO%20Software%20Solutions/docs/evidence/screenshot_double_booking.png)
 * **Network Payload:**
   * Request: `POST https://automationintesting.online/api/booking`
   * Response: `HTTP/1.1 409 Conflict`
   * Response Body: `{"error":"Failed to create booking"}`
+* **Screenshot Evidence:**
+
+![BUG-001 Evidence: React Unhandled Crash Screen](evidence/screenshot_double_booking.png)
 
 #### Suggested Fix
 In the booking submission handler (e.g., `handleReserveSubmit`), wrap the API call in a `try...catch` block. Check `response.status === 409` and set an error state `errorMessage = "The selected dates are unavailable. Please select another date."` to be displayed in an `<Alert variant="danger">` inside the modal rather than bubbling up as an uncaught Promise rejection.
@@ -341,7 +343,9 @@ must not be empty
 ```
 
 #### Evidence
-* **Screenshot:** [screenshot_validation_errors.png](file:///d:/Teknikal%20test%20IO%20Software%20Solutions/docs/evidence/screenshot_validation_errors.png)
+* **Screenshot Evidence:**
+
+![BUG-003 Evidence: Raw Backend Error Banner Dump](evidence/screenshot_validation_errors.png)
 
 #### Suggested Fix
 Implement frontend schema validation (using Zod or Yup with React Hook Form) prior to submitting the network request. Map server validation errors to structured field keys (`{ field: 'phone', message: '...' }`).
