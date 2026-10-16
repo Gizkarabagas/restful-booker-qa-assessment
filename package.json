@@ -1,0 +1,31 @@
+{
+  "name": "restful-booker-playwright-bdd",
+  "version": "1.0.0",
+  "description": "Playwright BDD Test Automation Framework with Page Object Model (POM) for Restful Booker Platform",
+  "scripts": {
+    "bddgen": "bddgen",
+    "test": "bddgen && playwright test",
+    "test:headed": "bddgen && playwright test --headed",
+    "test:ui": "bddgen && playwright test --ui",
+    "test:smoke": "bddgen && playwright test --grep @smoke",
+    "test:regression": "bddgen && playwright test --grep @regression",
+    "report": "playwright show-report"
+  },
+  "keywords": [
+    "playwright",
+    "bdd",
+    "cucumber",
+    "gherkin",
+    "page-object-model",
+    "jira-xray",
+    "test-automation"
+  ],
+  "author": "QA / SDET Engineer",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "playwright-bdd": "^9.2.1",
+    "typescript": "^7.0.2"
+  }
+}

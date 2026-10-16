@@ -1,0 +1,530 @@
+{
+  "info": {
+    "_postman_id": "7f4c93a1-1250-482a-9e58-cd3a60a72091",
+    "name": "Restful Booker Platform API Test Suite",
+    "description": "Comprehensive API Test Suite for Restful Booker Platform (automationintesting.online). Covers Auth, Rooms, Booking CRUD, Negative Validations, Conflict Checks, Messages, and Branding.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login - Admin (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response returns valid auth token\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.expect(jsonData.token).to.be.a('string').and.not.empty;",
+                  "    pm.environment.set(\"authToken\", jsonData.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials (Negative)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden or 401 Unauthorized\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"invalidUser\",\n  \"password\": \"wrongPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Rooms Management",
+      "item": [
+        {
+          "name": "Get All Rooms (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Rooms list contains items with required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.rooms).to.be.an('array').and.not.empty;",
+                  "    const firstRoom = jsonData.rooms[0];",
+                  "    pm.expect(firstRoom).to.have.property('roomid');",
+                  "    pm.expect(firstRoom).to.have.property('roomName');",
+                  "    pm.expect(firstRoom).to.have.property('roomPrice');",
+                  "    pm.expect(firstRoom).to.have.property('type');",
+                  "    pm.environment.set(\"roomId\", firstRoom.roomid);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/room",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "room"]
+            }
+          }
+        },
+        {
+          "name": "Get Room by ID (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response matches requested room ID\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.roomid).to.eql(parseInt(pm.environment.get(\"roomId\")));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/room/{{roomId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "room", "{{roomId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Room by Non-existent ID (Negative)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found or empty body\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([404, 500, 204]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/room/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "room", "999999"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Booking Workflow",
+      "item": [
+        {
+          "name": "Create Booking - Valid Payload (Positive)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate random date in 2027 to avoid collision with existing bookings",
+                  "const randomDay = Math.floor(Math.random() * 15) + 1;",
+                  "const checkinDay = String(randomDay).padStart(2, '0');",
+                  "const checkoutDay = String(randomDay + 2).padStart(2, '0');",
+                  "pm.variables.set(\"dynamicCheckin\", `2027-05-${checkinDay}`);",
+                  "pm.variables.set(\"dynamicCheckout\", `2027-05-${checkoutDay}`);",
+                  "pm.variables.set(\"dynamicPhone\", `0812${Math.floor(10000000 + Math.random() * 90000000)}`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response returns booking confirmation with bookingid\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('bookingid');",
+                  "    pm.expect(jsonData.bookingid).to.be.a('number');",
+                  "    pm.expect(jsonData.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(jsonData.lastname).to.eql(\"Automation\");",
+                  "    pm.environment.set(\"createdBookingId\", jsonData.bookingid);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomid\": {{roomId}},\n  \"firstname\": \"Alex\",\n  \"lastname\": \"Automation\",\n  \"depositpaid\": false,\n  \"bookingdates\": {\n    \"checkin\": \"{{dynamicCheckin}}\",\n    \"checkout\": \"{{dynamicCheckout}}\"\n  },\n  \"email\": \"alex.automation@testqa.io\",\n  \"phone\": \"{{dynamicPhone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/booking",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "booking"]
+            }
+          }
+        },
+        {
+          "name": "Create Booking - Mandatory Validation Errors (Negative)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response returns errors array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('errors');",
+                  "    pm.expect(jsonData.errors).to.be.an('array').and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomid\": {{roomId}},\n  \"firstname\": \"\",\n  \"lastname\": \"\",\n  \"depositpaid\": false,\n  \"bookingdates\": {\n    \"checkin\": \"2027-01-01\",\n    \"checkout\": \"2027-01-02\"\n  },\n  \"email\": \"\",\n  \"phone\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/booking",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "booking"]
+            }
+          }
+        },
+        {
+          "name": "Create Booking - Date Conflict Overlap (Negative)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 409 Conflict\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test(\"Response indicates booking failure\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.eql(\"Failed to create booking\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomid\": 1,\n  \"firstname\": \"Conflict\",\n  \"lastname\": \"Tester\",\n  \"depositpaid\": false,\n  \"bookingdates\": {\n    \"checkin\": \"2026-02-01\",\n    \"checkout\": \"2026-02-05\"\n  },\n  \"email\": \"conflict@testqa.io\",\n  \"phone\": \"0812345678901\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/booking",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "booking"]
+            }
+          }
+        },
+        {
+          "name": "Get Booking by ID - Authenticated (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Booking record contains guest and date information\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('firstname');",
+                  "    pm.expect(jsonData).to.have.property('lastname');",
+                  "    pm.expect(jsonData).to.have.property('bookingdates');",
+                  "    pm.expect(jsonData.bookingdates).to.have.property('checkin');",
+                  "    pm.expect(jsonData.bookingdates).to.have.property('checkout');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "booking", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Booking by ID - Unauthenticated (Negative)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden without valid auth cookie\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "booking", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Booking by ID - Authenticated (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 202 Accepted or 200 OK\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/{{createdBookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "booking", "{{createdBookingId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Reports & Contact Messages",
+      "item": [
+        {
+          "name": "Get Room Calendar Report (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Report contains calendar schedule array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('report');",
+                  "    pm.expect(jsonData.report).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/report/room/{{roomId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "report", "room", "{{roomId}}"]
+            }
+          }
+        },
+        {
+          "name": "Submit Contact Message (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK or 201 Created\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response confirms message received\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Contact\",\n  \"email\": \"sarah@example.com\",\n  \"phone\": \"081234567890\",\n  \"subject\": \"Late check-in inquiry\",\n  \"description\": \"Hi, is it possible to arrange check-in around 10:00 PM next Friday?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/message",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "message"]
+            }
+          }
+        },
+        {
+          "name": "Get Hotel Branding Info (Positive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Branding returns hotel name and contact\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "    pm.expect(jsonData).to.have.property('contact');",
+                  "    pm.expect(jsonData.contact).to.have.property('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/branding",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "branding"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
