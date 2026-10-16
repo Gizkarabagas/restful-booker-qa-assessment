@@ -1,13 +1,81 @@
-"Test ID","Scenario Summary","Test Type","Priority","Given (Precondition)","When (Action Steps)","Then (Expected Result)"
-"TC-BOOK-001","Successful room booking with valid guest details and available dates","Positive (E2E)","High (P1)","User is on the room reservation page with available dates","1. User clicks 'Reserve Now' | 2. User enters valid Firstname, Lastname, Email, and Phone (11+ digits) | 3. User submits reservation","Booking is confirmed successfully (HTTP 201), confirmation card displays check-in/out dates, and 'Return home' button is visible."
-"TC-BOOK-002","Submit booking modal with all mandatory fields empty","Negative","High (P1)","User has opened the booking modal for an available room","1. User leaves Firstname, Lastname, Email, and Phone blank | 2. User clicks 'Reserve Now'","Form is not submitted (HTTP 400), red validation banner appears containing specific errors for blank Firstname, Lastname, Email, and Phone."
-"TC-BOOK-003","Submit booking with Firstname and Lastname below minimum boundary (2 chars)","Boundary (Negative)","Medium (P2)","User is on the booking modal","1. User inputs 2 characters for Firstname ('Jo') and Lastname ('Do') | 2. Valid email and phone provided | 3. User clicks 'Reserve Now'","Validation error is triggered indicating name size must be between 3 and 18 characters. Form is not submitted."
-"TC-BOOK-004","Submit booking with Firstname and Lastname at maximum boundary (18 chars)","Boundary (Positive)","Medium (P2)","User is on the booking modal","1. User inputs exactly 18 characters for Firstname and Lastname | 2. Valid email and phone provided | 3. User clicks 'Reserve Now'","Reservation succeeds without validation error (HTTP 201). Boundary of 18 chars is correctly accepted."
-"TC-BOOK-005","Submit booking with invalid email format (missing '@' and domain)","Negative","High (P1)","User is on the booking modal","1. User inputs valid names and phone | 2. User inputs 'invalidemailstring' | 3. User clicks 'Reserve Now'","Form displays validation error regarding invalid email format. Booking is rejected."
-"TC-BOOK-006","Submit booking with Phone number below minimum boundary (10 digits)","Boundary (Negative)","High (P1)","User is on the booking modal","1. User inputs a 10-digit phone number (e.g. '0123456789') | 2. Other fields valid | 3. User clicks 'Reserve Now'","Validation error displays 'size must be between 11 and 21'. Form is rejected."
-"TC-BOOK-007","Submit booking with Phone number at boundary limits (11 and 21 digits)","Boundary (Positive)","Medium (P2)","User is on the booking modal","1. User tests with 11 digits and 21 digits valid numerical phone | 2. Other fields valid | 3. User clicks 'Reserve Now'","Reservation succeeds for both 11-digit and 21-digit boundaries (HTTP 201)."
-"TC-BOOK-008","Attempt to book dates that overlap with an existing confirmed booking","Negative (Conflict)","High (P1)","A confirmed booking already exists for Room 101 on dates 2026-11-10 to 2026-11-12","1. Another guest attempts to book Room 101 for the exact overlapping dates | 2. User fills valid details and submits","System rejects booking with HTTP 409 Conflict. UI displays a clear, graceful error banner stating 'Room is unavailable for the selected dates'."
-"TC-BOOK-009","Minimum length stay (1 night booking)","Boundary (Positive)","Medium (P2)","User is on the booking calendar","1. User selects check-in date 2026-11-20 and check-out date 2026-11-21 (1 night) | 2. User verifies price calculation | 3. User submits reservation","Price calculation shows 1 night x rate + cleaning fee + service fee. Reservation succeeds."
-"TC-BOOK-010","Attempt to select Check-out date prior to Check-in date (Reverse date range)","Edge Case (Negative)","High (P1)","User is on the booking calendar","1. User sets Check-out date earlier than Check-in date via date picker or URL params | 2. User attempts to submit","Date picker disallows earlier checkout OR form validation blocks submission with 'Check-out date must be after Check-in date'."
-"TC-BOOK-011","Submit booking containing purely alphabetic string in Phone number field","Edge Case (Negative)","Medium (P2)","User is on the booking modal","1. User inputs 'abcdefghijk12' (13 chars) in phone input | 2. Other fields valid | 3. User clicks 'Reserve Now'","Form validation rejects non-numeric phone format with 'Phone must contain valid phone digits'."
-"TC-BOOK-012","Guest name with international characters and apostrophes (e.g. 'O\'Connor', 'René')","Edge Case (Positive)","Low (P3)","User is on the booking modal","1. User enters Firstname 'René' and Lastname 'O\'Connor' | 2. Other fields valid | 3. User submits reservation","System successfully processes special characters without string corruption or injection errors (HTTP 201)."
+"Test ID","Scenario Summary","Test Type","Priority","Gherkin BDD Scenario (Given-When-Then)","Expected Result"
+"TC-BOOK-001","Successful room booking with valid guest details","Positive (E2E)","High (P1)","Scenario: User successfully books a room with valid guest details
+  Given User is on the room reservation page with available stay dates
+  When User clicks the 'Reserve Now' button on the price summary card
+  And User enters valid guest information (Alexander, QAUser, alex.qa@test.com, 0812345678901)
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The reservation should be created successfully with HTTP 201
+  And User should see the 'Booking Confirmed' card displaying the reserved dates","Booking is confirmed successfully (HTTP 201), confirmation card displays check-in/out dates, and 'Return home' button is visible."
+"TC-BOOK-002","Submit booking modal with all mandatory fields empty","Negative (Validation)","High (P1)","Scenario: System displays validation errors when submitting an empty booking form
+  Given User has opened the booking reservation modal
+  When User leaves all input fields empty (firstname, lastname, email, phone)
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The form submission should be rejected with HTTP 400 Bad Request
+  And User should see a validation alert banner containing mandatory field requirements","Form is not submitted (HTTP 400), red validation banner appears containing specific errors for blank Firstname, Lastname, Email, and Phone."
+"TC-BOOK-003","Submit booking with Name below minimum boundary (2 chars)","Boundary (Negative)","Medium (P2)","Scenario: System rejects guest names below minimum boundary limit (< 3 characters)
+  Given User has opened the booking reservation modal
+  When User enters Firstname 'Jo' and Lastname 'Do' (2 characters each)
+  And User enters valid email and phone number
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The form submission should be rejected
+  And User should see validation error 'size must be between 3 and 18'","Validation error is triggered indicating name size must be between 3 and 18 characters. Form is not submitted."
+"TC-BOOK-004","Submit booking with Name at maximum boundary (18 chars)","Boundary (Positive)","Medium (P2)","Scenario: User successfully books a room with guest name at maximum boundary (18 characters)
+  Given User is on the room reservation page with available stay dates
+  When User clicks the 'Reserve Now' button on the price summary card
+  And User enters Firstname 'MaximilianusValer' and Lastname 'Constantinopolit' (18 chars each)
+  And User enters valid email and phone number
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The reservation should be created successfully without name validation error","Reservation succeeds without validation error (HTTP 201). Boundary of 18 chars is correctly accepted."
+"TC-BOOK-005","Submit booking with invalid email format (missing '@' and domain)","Negative (Validation)","High (P1)","Scenario: System rejects booking submission with invalid email format
+  Given User has opened the booking reservation modal
+  When User enters valid guest name and phone number
+  And User enters invalid email 'invalidemailaddress' without '@' and domain
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The form submission should be rejected
+  And User should see validation error regarding invalid email format","Form displays validation error regarding invalid email format. Booking is rejected."
+"TC-BOOK-006","Submit booking with Phone number below boundary (10 digits)","Boundary (Negative)","High (P1)","Scenario: System rejects booking submission with phone number below minimum boundary (10 digits)
+  Given User has opened the booking reservation modal
+  When User enters valid guest name and email
+  And User enters phone number '0123456789' with 10 digits
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The form submission should be rejected
+  And User should see validation error 'size must be between 11 and 21'","Validation error displays 'size must be between 11 and 21'. Form is rejected."
+"TC-BOOK-007","Submit booking with Phone at boundary limits (11 and 21 digits)","Boundary (Positive)","Medium (P2)","Scenario: User successfully books a room with phone number at boundary lengths (11 and 21 digits)
+  Given User is on the room reservation page with available stay dates
+  When User clicks the 'Reserve Now' button on the price summary card
+  And User enters valid guest name and email
+  And User enters phone number with 11 digits ('08123456789') or 21 digits
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The reservation should be created successfully with HTTP 201","Reservation succeeds for both 11-digit and 21-digit boundaries (HTTP 201)."
+"TC-BOOK-008","Attempt to book dates that overlap with an existing confirmed booking","Negative (Conflict)","High (P1)","Scenario: System prevents double-booking when selected dates overlap with an existing reservation
+  Given Room '101' already has a confirmed booking for dates '2026-11-10' to '2026-11-12'
+  When Another guest attempts to book Room '101' for the overlapping dates
+  And The guest submits valid guest information
+  Then The backend API should reject the booking with HTTP 409 Conflict
+  And The UI should display a graceful alert indicating the dates are unavailable
+  And The application must NOT crash to an unhandled error boundary screen","System rejects booking with HTTP 409 Conflict. UI displays a clear, graceful error banner stating 'Room is unavailable for the selected dates'."
+"TC-BOOK-009","Minimum length stay (1 night booking)","Boundary (Positive)","Medium (P2)","Scenario: User successfully books a room for minimum stay duration (1 night)
+  Given User is on the booking calendar for an available room
+  When User selects check-in date '2026-11-20' and check-out date '2026-11-21' (1 night)
+  Then The price breakdown should calculate exactly '1 night x rate' plus cleaning and service fees
+  When User submits valid guest details in the reservation modal
+  Then The booking should be confirmed for a 1-night stay","Price calculation shows 1 night x rate + cleaning fee + service fee. Reservation succeeds."
+"TC-BOOK-010","Attempt to select Check-out date prior to Check-in date (Reverse dates)","Edge Case (Negative)","High (P1)","Scenario: System blocks reservation when check-out date is set earlier than check-in date
+  Given User is on the booking calendar for an available room
+  When User sets check-out date '2026-11-01' earlier than check-in date '2026-11-05'
+  Then The calendar should prevent the selection OR form submission should be blocked
+  And User should see error message 'Check-out date must be after check-in date'","Date picker disallows earlier checkout OR form validation blocks submission with 'Check-out date must be after Check-in date'."
+"TC-BOOK-011","Submit booking containing purely alphabetic string in Phone number","Edge Case (Negative)","Medium (P2)","Scenario: System validates phone number format to reject alphabetical characters
+  Given User has opened the booking reservation modal
+  When User enters valid guest name and email
+  And User enters alphabetical characters 'abcdefghijk12' in the phone input
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The form submission should be rejected
+  And User should see validation error 'Phone number must contain only valid numeric digits'","Form validation rejects non-numeric phone format with 'Phone must contain valid phone digits'."
+"TC-BOOK-012","Guest name with international characters and apostrophes (e.g. 'O\'Connor', 'René')","Edge Case (Positive)","Low (P3)","Scenario: User books a room with international characters and apostrophes in guest name
+  Given User is on the room reservation page with available stay dates
+  When User clicks the 'Reserve Now' button on the price summary card
+  And User enters Firstname 'René' and Lastname 'O\'Connor'
+  And User enters valid email and phone number
+  And User clicks the 'Reserve Now' button inside the modal
+  Then The reservation should be processed without character corruption or system errors","System successfully processes special characters without string corruption or injection errors (HTTP 201)."
