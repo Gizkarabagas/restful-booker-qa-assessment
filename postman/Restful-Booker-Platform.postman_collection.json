@@ -45,8 +45,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -79,8 +85,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         }
@@ -120,8 +132,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/room",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "room"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "room"
+              ]
             }
           }
         },
@@ -150,8 +167,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/room/{{roomId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "room", "{{roomId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "room",
+                "{{roomId}}"
+              ]
             }
           }
         },
@@ -175,8 +198,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/room/999999",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "room", "999999"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "room",
+                "999999"
+              ]
             }
           }
         }
@@ -238,8 +267,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/booking",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "booking"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking"
+              ]
             }
           }
         },
@@ -278,8 +312,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/booking",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "booking"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking"
+              ]
             }
           }
         },
@@ -318,8 +357,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/booking",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "booking"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking"
+              ]
             }
           }
         },
@@ -357,8 +401,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/booking/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "booking", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "1"
+              ]
             }
           }
         },
@@ -382,8 +432,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/booking/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "booking", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "1"
+              ]
             }
           }
         },
@@ -412,8 +468,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/booking/{{createdBookingId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "booking", "{{createdBookingId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "{{createdBookingId}}"
+              ]
             }
           }
         }
@@ -448,8 +510,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/report/room/{{roomId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "report", "room", "{{roomId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "room",
+                "{{roomId}}"
+              ]
             }
           }
         },
@@ -487,8 +556,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/message",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "message"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "message"
+              ]
             }
           }
         },
@@ -519,12 +593,49 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/branding",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "branding"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "branding"
+              ]
             }
           }
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://automationintesting.online",
+      "type": "string"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "password",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "roomId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "createdBookingId",
+      "value": "",
+      "type": "string"
     }
   ]
 }

@@ -1,0 +1,14 @@
+name: Restful Booker Platform - Production Demo
+values:
+  - key: baseUrl
+    value: 'https://automationintesting.online'
+  - key: adminUsername
+    value: admin
+  - key: adminPassword
+    value: password
+  - key: authToken
+    value: ''
+  - key: roomId
+    value: '1'
+  - key: createdBookingId
+    value: ''

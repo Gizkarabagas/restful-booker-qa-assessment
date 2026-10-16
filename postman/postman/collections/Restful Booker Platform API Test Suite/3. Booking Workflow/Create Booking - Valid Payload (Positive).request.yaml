@@ -1,0 +1,47 @@
+$kind: http-request
+url: "{{baseUrl}}/api/booking"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roomid": {{roomId}},
+      "firstname": "Alex",
+      "lastname": "Automation",
+      "depositpaid": false,
+      "bookingdates": {
+        "checkin": "{{dynamicCheckin}}",
+        "checkout": "{{dynamicCheckout}}"
+      },
+      "email": "alex.automation@testqa.io",
+      "phone": "{{dynamicPhone}}"
+    }
+scripts:
+  - type: beforeRequest
+    code: |-
+      // Generate random date in 2027 to avoid collision with existing bookings
+      const randomDay = Math.floor(Math.random() * 15) + 1;
+      const checkinDay = String(randomDay).padStart(2, '0');
+      const checkoutDay = String(randomDay + 2).padStart(2, '0');
+      pm.variables.set("dynamicCheckin", `2027-05-${checkinDay}`);
+      pm.variables.set("dynamicCheckout", `2027-05-${checkoutDay}`);
+      pm.variables.set("dynamicPhone", `0812${Math.floor(10000000 + Math.random() * 90000000)}`);
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201 Created", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Response returns booking confirmation with bookingid", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('bookingid');
+          pm.expect(jsonData.bookingid).to.be.a('number');
+          pm.expect(jsonData.firstname).to.eql("Alex");
+          pm.expect(jsonData.lastname).to.eql("Automation");
+          pm.environment.set("createdBookingId", jsonData.bookingid);
+      });
+    language: text/javascript
+order: 1000

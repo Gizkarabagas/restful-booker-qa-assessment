@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/api/room"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Rooms list contains items with required fields", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.rooms).to.be.an('array').and.not.empty;
+          const firstRoom = jsonData.rooms[0];
+          pm.expect(firstRoom).to.have.property('roomid');
+          pm.expect(firstRoom).to.have.property('roomName');
+          pm.expect(firstRoom).to.have.property('roomPrice');
+          pm.expect(firstRoom).to.have.property('type');
+          pm.environment.set("roomId", firstRoom.roomid);
+      });
+    language: text/javascript
+order: 1000

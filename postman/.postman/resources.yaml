@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: d1585aa9-63a5-4c37-8099-d5af60767cb9
+
+localResources:
+  collections:
+    - ../postman/collections/Restful Booker Platform API Test Suite
+  environments:
+    - ../postman/environments/Restful Booker Platform - Production Demo.environment.yaml

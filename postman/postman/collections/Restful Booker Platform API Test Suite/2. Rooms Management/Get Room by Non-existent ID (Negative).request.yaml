@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/api/room/999999"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 404 Not Found or empty body", function () {
+          pm.expect(pm.response.code).to.be.oneOf([404, 500, 204]);
+      });
+    language: text/javascript
+order: 3000

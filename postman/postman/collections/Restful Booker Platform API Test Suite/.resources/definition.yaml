@@ -1,0 +1,11 @@
+$kind: collection
+id: 7f4c93a1-1250-482a-9e58-cd3a60a72091
+name: Restful Booker Platform API Test Suite
+description: Comprehensive API Test Suite for Restful Booker Platform (automationintesting.online). Covers Auth, Rooms, Booking CRUD, Negative Validations, Conflict Checks, Messages, and Branding.
+variables:
+  baseUrl: https://automationintesting.online
+  adminUsername: admin
+  adminPassword: password
+  authToken: ""
+  roomId: "1"
+  createdBookingId: ""

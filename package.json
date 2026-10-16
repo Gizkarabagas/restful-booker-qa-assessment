@@ -9,6 +9,8 @@
     "test:ui": "bddgen && playwright test --ui",
     "test:smoke": "bddgen && playwright test --grep @smoke",
     "test:regression": "bddgen && playwright test --grep @regression",
+    "test:perf": "k6 run performance/booking-perf.js",
+    "test:api": "postman collection run postman/Restful-Booker-Platform.postman_collection.json -e postman/Restful-Booker-Platform.postman_environment.json",
     "report": "playwright show-report"
   },
   "keywords": [

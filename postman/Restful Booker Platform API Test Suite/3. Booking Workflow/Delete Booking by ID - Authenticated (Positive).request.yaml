@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/booking/{{createdBookingId}}"
+method: DELETE
+headers:
+  Cookie: token={{authToken}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 202 Accepted or 200 OK", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);
+      });
+    language: text/javascript
+order: 6000

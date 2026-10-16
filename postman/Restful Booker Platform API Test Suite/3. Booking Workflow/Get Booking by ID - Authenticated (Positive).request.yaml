@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/api/booking/1"
+method: GET
+headers:
+  Cookie: token={{authToken}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Booking record contains guest and date information", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('firstname');
+          pm.expect(jsonData).to.have.property('lastname');
+          pm.expect(jsonData).to.have.property('bookingdates');
+          pm.expect(jsonData.bookingdates).to.have.property('checkin');
+          pm.expect(jsonData.bookingdates).to.have.property('checkout');
+      });
+    language: text/javascript
+order: 4000

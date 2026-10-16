@@ -1,0 +1,34 @@
+$kind: http-request
+url: "{{baseUrl}}/api/booking"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roomid": 1,
+      "firstname": "Conflict",
+      "lastname": "Tester",
+      "depositpaid": false,
+      "bookingdates": {
+        "checkin": "2026-02-01",
+        "checkout": "2026-02-05"
+      },
+      "email": "conflict@testqa.io",
+      "phone": "0812345678901"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 409 Conflict", function () {
+          pm.response.to.have.status(409);
+      });
+
+      pm.test("Response indicates booking failure", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('error');
+          pm.expect(jsonData.error).to.eql("Failed to create booking");
+      });
+    language: text/javascript
+order: 3000

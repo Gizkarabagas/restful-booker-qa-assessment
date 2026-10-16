@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/api/message"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Sarah Contact",
+      "email": "sarah@example.com",
+      "phone": "081234567890",
+      "subject": "Late check-in inquiry",
+      "description": "Hi, is it possible to arrange check-in around 10:00 PM next Friday?"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK or 201 Created", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+
+      pm.test("Response confirms message received", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.success).to.be.true;
+      });
+    language: text/javascript
+order: 2000
