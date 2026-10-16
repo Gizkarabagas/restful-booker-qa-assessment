@@ -39,6 +39,57 @@ Below is a comprehensive suite of test cases designed in **Jira Xray BDD / Cucum
 
 ---
 
+### 2.1 Gherkin Feature File Syntax (`booking.feature`)
+
+File ini dapat langsung diimport ke **Jira Xray (Cucumber Test Type)** atau dieksekusi langsung oleh test runner:
+
+```gherkin
+@booking @regression
+Feature: Room Reservation Workflow
+  As a guest of Shady Meadows B&B
+  I want to select and book a hotel room online
+  So that I have a confirmed reservation for my stay
+
+  @XRAY-101 @smoke @e2e
+  Scenario: [XRAY-101] Successfully book a room with valid guest details
+    Given the guest navigates to the reservation page for an available room
+    When the guest opens the reservation modal
+    And the guest enters valid guest details
+    And the guest submits the reservation form
+    Then the system displays the booking confirmation with the reserved dates
+
+  @XRAY-102 @negative @validation
+  Scenario: [XRAY-102] Display validation errors when submitting booking form with missing mandatory fields
+    Given the guest navigates to the reservation page for an available room
+    When the guest opens the reservation modal
+    And the guest leaves all guest details fields empty
+    And the guest submits the reservation form
+    Then the system displays a validation error banner containing mandatory field requirements
+
+  @XRAY-103 @boundary @negative
+  Scenario Outline: [XRAY-103] Validation on guest names below minimum boundary (< 3 characters)
+    Given the guest navigates to the reservation page for an available room
+    When the guest opens the reservation modal
+    And the guest inputs Firstname "<firstname>" and Lastname "<lastname>"
+    And the guest submits the reservation form
+    Then the system displays a validation error "size must be between 3 and 18"
+
+    Examples:
+      | firstname | lastname |
+      | Al        | Do       |
+      | J         | K        |
+
+  @XRAY-108 @negative @conflict
+  Scenario: [XRAY-108] Reject booking on date conflict with an existing reservation
+    Given a room has an existing confirmed reservation on "2026-11-10" to "2026-11-12"
+    When another guest attempts to book the same room on "2026-11-10" to "2026-11-12"
+    And the guest submits valid guest information
+    Then the system rejects the booking with an HTTP 409 conflict
+    And the UI displays an error alert indicating the room is unavailable
+```
+
+---
+
 ## 3. Structured Defect Reports
 
 During exploratory and automated execution against the live demo application (`https://automationintesting.online/`), **three (3) critical and medium defects** were identified, reproduced, and documented using industry-standard Jira defect templates.
