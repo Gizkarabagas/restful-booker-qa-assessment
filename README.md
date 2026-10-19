@@ -12,6 +12,8 @@ Designed for seamless integration with **Jira + Xray Test Management** and CI/CD
 - [Scenarios Automated](#-scenarios-automated)
 - [Prerequisites & Installation](#-prerequisites--installation)
 - [Running Tests](#-running-tests)
+- [API Testing (Postman)](#-api-testing-postman)
+- [Performance Testing (k6)](#-performance-testing-k6)
 - [Test Reports & Jira Xray Integration](#-test-reports--jira-xray-integration)
 - [Defects & Technical Findings](#-defects--technical-findings)
 - [What I Would Improve with Additional Time](#-what-i-would-improve-with-additional-time)
@@ -48,6 +50,8 @@ Designed for seamless integration with **Jira + Xray Test Management** and CI/CD
 ├── postman/                    # Postman Collection & Environment artifacts
 │   ├── Restful-Booker-Platform.postman_collection.json
 │   └── Restful-Booker-Platform.postman_environment.json
+├── performance/                # Task 4: k6 Load & Performance Testing
+│   └── booking-perf.js         # Ramping arrival rate (5 to 20 RPS)
 ├── features/                   # Gherkin BDD Feature Files (Jira Xray aligned)
 │   └── booking.feature
 ├── steps/                      # BDD Step Definitions (thin controllers)
@@ -128,6 +132,51 @@ npm run test:ui
 npm run test:smoke
 npm run test:regression
 ```
+
+---
+
+## 📬 API Testing (Postman)
+
+The repository includes a comprehensive Postman test suite covering **14 requests** across Auth, Rooms, Booking workflows, and Branding with **24 automated assertions**.
+
+### Run via Command Line (Postman CLI / Newman)
+```bash
+npm run test:api
+```
+
+### Manual Execution via Postman Desktop
+1. Open Postman.
+2. Import `postman/Restful-Booker-Platform.postman_collection.json` and `postman/Restful-Booker-Platform.postman_environment.json`.
+3. Select the **Restful Booker Platform - Production Demo** environment.
+4. Click **Run Collection** (All 14 tests run with 100% pass rate).
+
+---
+
+## ⚡ Performance Testing (k6)
+
+Task 4 performance testing is implemented using **Grafana k6** simulating real-world traffic on the booking API (`POST /api/booking`).
+
+### Traffic Profile: Ramping Arrival Rate
+* **Stage 1 (Normal Traffic):** 5 RPS for 1 minute
+* **Stage 2 (Ramp-up to Peak):** 5 RPS → 20 RPS over 2 minutes
+* **Stage 3 (Sustained Peak):** 20 RPS for 2 minutes
+* **Stage 4 (Cooldown / Recovery):** 20 RPS → 0 RPS over 30 seconds
+
+### Service Level Agreement (SLA) Thresholds
+* `http_req_duration`: p(95) < 1,000ms, p(99) < 2,000ms
+* `http_req_failed`: error rate < 5%
+* `checks`: overall transaction success rate > 95%
+
+### Execute k6 Load Test
+```bash
+npm run test:perf
+```
+
+### Verified Benchmark Results
+* **Total Requests Handled:** 4,499 bookings over 5.5 minutes
+* **Success Rate:** 98.81% (Passed SLA)
+* **Average Latency:** 332 ms
+* **p(95) Response Time:** 915 ms (under 1.0s threshold)
 
 ---
 
