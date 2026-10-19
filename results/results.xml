@@ -1,8 +1,8 @@
-<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="10.561216">
-<testsuite name="features\booking.feature.spec.js" timestamp="2026-10-16T17:25:23.008Z" hostname="chromium" tests="2" failures="0" skipped="0" time="9.509" errors="0">
-<testcase name="Room Reservation Workflow › [XRAY-101] Successfully book a room with valid guest details" classname="features\booking.feature.spec.js" time="5.181">
+<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="13.457649">
+<testsuite name="features\booking.feature.spec.js" timestamp="2026-10-19T03:17:44.548Z" hostname="chromium" tests="2" failures="0" skipped="0" time="11.248" errors="0">
+<testcase name="Room Reservation Workflow › [XRAY-101] Successfully book a room with valid guest details" classname="features\booking.feature.spec.js" time="7.471">
 </testcase>
-<testcase name="Room Reservation Workflow › [XRAY-102] Display validation errors when submitting booking form with missing mandatory fields" classname="features\booking.feature.spec.js" time="4.328">
+<testcase name="Room Reservation Workflow › [XRAY-102] Display validation errors when submitting booking form with missing mandatory fields" classname="features\booking.feature.spec.js" time="3.777">
 </testcase>
 </testsuite>
 </testsuites>
